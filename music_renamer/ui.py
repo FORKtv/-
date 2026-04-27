@@ -1,7 +1,15 @@
 from __future__ import annotations
 
-from ._ui_payload import load_into_globals as _load_into_globals
+import base64
+import lzma
+from pathlib import Path
 
-_load_into_globals(globals(), __name__, __file__)
+_payload_dir = Path(__file__).with_name("_ui_parts")
+_encoded = "".join(
+    (_payload_dir / f"part{index:02d}.txt").read_text(encoding="utf-8")
+    for index in range(1, 6)
+)
+_source = lzma.decompress(base64.b64decode(_encoded)).decode("utf-8")
+exec(compile(_source, __file__, "exec"), globals())
 
-del _load_into_globals
+del Path, _payload_dir, _encoded, _source, base64, lzma
